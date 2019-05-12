@@ -18,7 +18,7 @@ class SettingController extends AdminBasicController
     public function indexAction()
     {
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 
@@ -52,10 +52,8 @@ class SettingController extends AdminBasicController
             }
 			
             $limits = "{$pagenum},{$limit}";
-			//$field = array('id','name','updatetime','tag');
-			$field = array();
+			$field = array('id','name','updatetime','tag');
 			$items=$this->m_config->Field($field)->Where($where)->Limit($limits)->Order(array('id'=>'DESC'))->Select();
-			
             if (empty($items)) {
                 $data = array('code'=>1002,'count'=>0,'data'=>array(),'msg'=>'无数据');
             } else {
@@ -70,17 +68,23 @@ class SettingController extends AdminBasicController
     public function editAction()
     {
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 		$id = $this->get('id');
 		if($id AND $id>0){
 			$data = array();
 			$item=$this->m_config->SelectByID('',$id);
-			$data['item'] =$item;
-			$this->getView()->assign($data);
+			$data['item'] = $item;
+			if($item['name'] AND file_exists(APP_PATH.'/application/modules/'.ADMIN_DIR.'/views/setting/tpl/'.$item['name'].'.html')){
+				$tpl = 'tpl_'.$item['name'];
+				$this->display($tpl, $data);
+				return FALSE;
+			}else{
+				$this->getView()->assign($data);
+			}
 		}else{
-            $this->redirect("/admin/setting");
+            $this->redirect('/'.ADMIN_DIR."/setting");
             return FALSE;
 		}
     }
@@ -100,13 +104,23 @@ class SettingController extends AdminBasicController
 			Helper::response($data);
         }
 		
-		if($method AND $name AND ($value OR is_numeric($value))AND $csrf_token){
+		if($method AND $name AND $csrf_token){
 			if ($this->VerifyCsrfToken($csrf_token)) {
-				$m=array(
-					'name'=>$name,
-					'value'=>htmlspecialchars($value),
-					'tag'=>$tag,
-				);
+				$tag = getRawText($tag,false);
+				if($value OR is_numeric($value)){
+					$m=array(
+						'name'=>$name,
+						'value'=>htmlspecialchars($value),
+						'tag'=>htmlspecialchars($tag),
+					);
+				}else{
+					$m=array(
+						'name'=>$name,
+						'value'=>"",
+						'tag'=>htmlspecialchars($tag),
+					);
+				}
+
 				if($method == 'edit' AND $id>0){
 					$u = $this->m_config->UpdateByID($m,$id);
 					if($u){
@@ -127,4 +141,40 @@ class SettingController extends AdminBasicController
 		}
 		Helper::response($data);
 	}	
+	
+	public function repairajaxAction()
+	{
+		$method = $this->getPost('method',false);
+		$csrf_token = $this->getPost('csrf_token', false);
+		
+		$data = array();
+		
+        if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
+            $data = array('code' => 1000, 'msg' => '请登录');
+			Helper::response($data);
+        }
+		
+		if($method AND $csrf_token){
+			if ($this->VerifyCsrfToken($csrf_token)) {
+				$field = array('id','name','updatetime','tag');
+				$items = $this->m_config->Field($field)->Order(array('id'=>'DESC'))->Select();
+				if (empty($items)) {
+					$data = array('code' => 1004, 'msg' => '无数据，不需要修复');
+				} else {
+					foreach($items AS $item){
+						$tag = getRawText($item['tag'],false);
+						$m = array('tag'=>htmlspecialchars($tag));
+						$this->m_config->UpdateByID($m,$item['id']);
+						unset($tag,$m);
+					}
+					$data = array('code' => 1, 'msg' => '修复完成');
+				}
+			} else {
+                $data = array('code' => 1001, 'msg' => '页面超时，请刷新页面后重试!');
+            }
+		}else{
+			$data = array('code' => 1000, 'msg' => '丢失参数');
+		}
+		Helper::response($data);
+	}		
 }

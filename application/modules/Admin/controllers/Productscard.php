@@ -9,23 +9,25 @@
 class ProductscardController extends AdminBasicController
 {
 	private $m_products_card;
+	private $m_products_type;
 	private $m_products;
     public function init()
     {
         parent::init();
 		$this->m_products_card = $this->load('products_card');
 		$this->m_products = $this->load('products');
+		$this->m_products_type = $this->load('products_type');
     }
 
     public function indexAction()
     {
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 
 		$data = array();
-		$products=$this->m_products->Where(array('isdelete'=>0))->Order(array('id'=>'DESC'))->Select();
+		$products = $this->m_products->Where(array('isdelete'=>0))->Order(array('sort_num'=>'DESC'))->Select();
 		$data['products'] = $products;
 		$this->getView()->assign($data);
     }
@@ -83,13 +85,14 @@ class ProductscardController extends AdminBasicController
     public function addAction()
     {
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 		$data = array();
 		
-		$products=$this->m_products->Where(array('auto'=>1,'isdelete'=>0))->Order(array('id'=>'DESC'))->Select();
-		$data['products'] = $products;
+		$order = array('sort_num' => 'DESC');
+		$products_type = $this->m_products_type->Where(array('active'=>1,'isdelete'=>0))->Order($order)->Select();
+		$data['products_type'] = $products_type;
 		
 		$this->getView()->assign($data);
     }
@@ -97,13 +100,15 @@ class ProductscardController extends AdminBasicController
     public function addplusAction()
     {
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 		$data = array();
 		
-		$products=$this->m_products->Where(array('auto'=>1,'isdelete'=>0))->Order(array('id'=>'DESC'))->Select();
-		$data['products'] = $products;
+		$order = array('sort_num' => 'DESC');
+		$products_type = $this->m_products_type->Where(array('active'=>1,'isdelete'=>0))->Order($order)->Select();
+		$data['products_type'] = $products_type;
+		
 		$this->getView()->assign($data);
     }	
 	
@@ -124,6 +129,7 @@ class ProductscardController extends AdminBasicController
 		if($method AND $pid AND $card AND $csrf_token){
 			if ($this->VerifyCsrfToken($csrf_token)) {
 				if($method == 'add'){
+					$card = getRawText($card,false);
 					$m=array(
 						'pid'=>$pid,
 						'card'=>$card,
@@ -147,6 +153,7 @@ class ProductscardController extends AdminBasicController
 					$newTxtFileData_array = explode($replace,$newTxtFileData);
 					foreach($newTxtFileData_array AS $line){
 						if(strlen($line)>0){
+							$line = getRawText($line,false);
 							$m[]=array('pid'=>$pid,'card'=>$line,'addtime'=>time());
 						}
 					}
@@ -188,17 +195,68 @@ class ProductscardController extends AdminBasicController
 			Helper::response($data);
         }
 		
-		if($id AND $id>0 AND $csrf_token){
+		if($csrf_token){
 			if ($this->VerifyCsrfToken($csrf_token)) {
-				$delete = $this->m_products_card->UpdateByID(array('isdelete'=>1),$id);
-				if($delete){
-					//减少商品数量
-					$cards = $this->m_products_card->SelectByID('pid',$id);
-					$qty_m = array('qty' => 'qty-1');
-					$this->m_products->Where(array('id'=>$cards['pid'],'stockcontrol'=>1))->Update($qty_m,TRUE);
-					$data = array('code' => 1, 'msg' => '成功');
+				if($id AND is_numeric($id) AND $id>0){
+					$delete = $this->m_products_card->UpdateByID(array('isdelete'=>1),$id);
+					if($delete){
+						//减少商品数量
+						$cards = $this->m_products_card->SelectByID('pid',$id);
+						$qty_m = array('qty' => 'qty-1');
+						$this->m_products->Where(array('id'=>$cards['pid'],'stockcontrol'=>1))->Update($qty_m,TRUE);
+						$data = array('code' => 1, 'msg' => '成功');
+					}else{
+						$data = array('code' => 1003, 'msg' => '删除失败');
+					}
 				}else{
-					$data = array('code' => 1003, 'msg' => '删除失败');
+					$ids = json_decode($id,true);
+					if(isset($ids['ids']) AND !empty($ids['ids'])){
+						$idss = implode(",",$ids['ids']);
+						$where = "id in ({$idss})";
+						$delete = $this->m_products_card->Where($where)->Update(array('isdelete'=>1));
+						if($delete){
+							foreach($ids['ids'] AS $idd){
+								//减少商品数量
+								$cards = $this->m_products_card->SelectByID('pid',$idd);
+								$qty_m = array('qty' => 'qty-1');
+								$this->m_products->Where(array('id'=>$cards['pid'],'stockcontrol'=>1))->Update($qty_m,TRUE);
+							}
+							$data = array('code' => 1, 'msg' => '成功');
+						}else{
+							$data = array('code' => 1003, 'msg' => '删除失败');
+						}
+					}else{
+						$data = array('code' => 1000, 'msg' => '请选中需要删除的卡密');
+					}
+				}
+			} else {
+                $data = array('code' => 1001, 'msg' => '页面超时，请刷新页面后重试!');
+            }
+		}else{
+			$data = array('code' => 1000, 'msg' => '丢失参数');
+		}
+		Helper::response($data);
+	}
+	
+	public function deleteemptyAction()
+	{
+		$method = $this->get('method',false);
+		$csrf_token = $this->getPost('csrf_token', false);
+		
+		$data = array();
+		
+        if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
+            $data = array('code' => 1000, 'msg' => '请登录');
+			Helper::response($data);
+        }
+		
+		if($method AND $csrf_token){
+			if ($this->VerifyCsrfToken($csrf_token)) {
+				if($method =="empty"){
+					$this->m_products_card->Query("DELETE FROM `t_products_card` WHERE `isdelete` = 1");
+					 $data = array('code' => 1, 'msg' => '清空已删除卡密');
+				}else{
+					 $data = array('code' => 1002, 'msg' => '方法错误');
 				}
 			} else {
                 $data = array('code' => 1001, 'msg' => '页面超时，请刷新页面后重试!');
@@ -212,12 +270,13 @@ class ProductscardController extends AdminBasicController
     public function importAction()
     {
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 		$data = array();
-		$products=$this->m_products->Where(array('auto'=>1,'isdelete'=>0))->Order(array('id'=>'DESC'))->Select();
-		$data['products'] = $products;
+		$order = array('sort_num' => 'DESC');
+		$products_type = $this->m_products_type->Where(array('active'=>1,'isdelete'=>0))->Order($order)->Select();
+		$data['products_type'] = $products_type;
 		$this->getView()->assign($data);
     }
 	
@@ -254,7 +313,10 @@ class ProductscardController extends AdminBasicController
 						$newTxtFileData_array = explode($replace,$newTxtFileData);
 						foreach($newTxtFileData_array AS $line){
 							if(strlen($line)>0){
-								$m[]=array('pid'=>$pid,'card'=>$line,'addtime'=>time());
+								$line = getRawText($line,false);
+								if(strlen($line)>0){
+									$m[]=array('pid'=>$pid,'card'=>$line,'addtime'=>time());
+								}
 							}
 						}
 						if(!empty($m)){
@@ -289,7 +351,7 @@ class ProductscardController extends AdminBasicController
     public function downloadAction()
     {
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 		$data = array();
@@ -303,7 +365,7 @@ class ProductscardController extends AdminBasicController
 		$csrf_token = $this->getPost('csrf_token', false);
 		
         if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
-            $this->redirect("/admin/login");
+            $this->redirect('/'.ADMIN_DIR."/login");
             return FALSE;
         }
 		
@@ -351,7 +413,41 @@ class ProductscardController extends AdminBasicController
 		echo $content;
 		exit();
 	}
-	
+	public function repairajaxAction()
+	{
+		$method = $this->getPost('method',false);
+		$csrf_token = $this->getPost('csrf_token', false);
+		
+		$data = array();
+		
+        if ($this->AdminUser==FALSE AND empty($this->AdminUser)) {
+            $data = array('code' => 1000, 'msg' => '请登录');
+			Helper::response($data);
+        }
+		
+		if($method AND $csrf_token){
+			if ($this->VerifyCsrfToken($csrf_token)) {
+				$field = array('id','card');
+				$items = $this->m_products_card->Field($field)->Order(array('id'=>'DESC'))->Select();
+				if (empty($items)) {
+					$data = array('code' => 1004, 'msg' => '无数据，不需要修复');
+				} else {
+					foreach($items AS $item){
+						$card = getRawText($item['card'],false);
+						$m = array('card'=>$card);
+						$this->m_products_card->UpdateByID($m,$item['id']);
+						unset($card,$m);
+					}
+					$data = array('code' => 1, 'msg' => '修复完成');
+				}
+			} else {
+                $data = array('code' => 1001, 'msg' => '页面超时，请刷新页面后重试!');
+            }
+		}else{
+			$data = array('code' => 1000, 'msg' => '丢失参数');
+		}
+		Helper::response($data);
+	}		
     private function conditionSQL($param,$alias='')
     {
         $condition = "1";

@@ -5,7 +5,7 @@
         <div class="layui-tab layui-tab-brief" lay-filter="user">
             <ul class="layui-tab-title" id="LAY_mine">
                 <li class="layui-this" lay-id="info">商品管理</li>
-                <li class="" lay-id="info"><a href="/admin/products/add/">添加</a></li>
+                <li class="" lay-id="info"><a href="/<?php echo ADMIN_DIR;?>/products/add/">添加</a></li>
             </ul>
             <div class="layui-tab-content" style="padding: 20px 0;">
                 <div class="layui-form layui-form-pane layui-tab-item layui-show">
@@ -42,10 +42,18 @@
     <span class="layui-badge layui-bg-gray">停售</span>
     {{# } }}
 </script>
+<script type="text/html" id="pifa">
+	<?php if($config['discountswitch']):?>
+    <a class="layui-btn layui-btn-normal layui-btn-xs" href="/<?php echo ADMIN_DIR;?>/productspifa/?id={{d.id}}">批发</a>
+	<?php else:?>
+	<button class="layui-btn layui-btn-disabled layui-btn-xs">批发</button>
+	<?php endif;?>
+</script>
 <script type="text/html" id="opt">
-    <a class="layui-btn layui-btn-warm layui-btn-xs" href="/admin/products/edit/?id={{d.id}}">编辑</a>
+    <a class="layui-btn layui-btn-warm layui-btn-xs" href="/<?php echo ADMIN_DIR;?>/products/edit/?id={{d.id}}">编辑</a>
 	{{# if(d.active == 0){ }}
-	<a data-href="/admin/products/delete/?id={{d.id}}" class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+	<a data-href="/<?php echo ADMIN_DIR;?>/products/delete/?id={{d.id}}" class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+	 {{# } else { }}
 	 {{# } }}
 </script>
 <!--引入公共底文件-->

@@ -4,10 +4,10 @@
     <div class="fly-panel fly-panel-user" pad20>
         <div class="layui-tab layui-tab-brief" lay-filter="email">
             <ul class="layui-tab-title" id="LAY_mine">
-                <li class="" lay-id="info"><a href="/admin/order/">订单管理</a></li>
+                <li class="" lay-id="info"><a href="/<?php echo ADMIN_DIR;?>/order/">订单管理</a></li>
                 <li class="layui-this" lay-id="info">查看</li>
-				<?php if($order[ 'status']=='0' ):?><li><a href="/admin/order/pay/?id=<?php echo $order['id'];?>">确认付款</a></li><?php endif;?>
-				<?php if($order[ 'status']=='1' OR  $order[ 'status']=='3'):?><li><a href="/admin/order/send/?id=<?php echo $order['id'];?>">手工发货</a></li><?php endif;?>
+				<?php if($order[ 'status']=='0' ):?><li><a href="/<?php echo ADMIN_DIR;?>/order/pay/?id=<?php echo $order['id'];?>">确认付款</a></li><?php endif;?>
+				<?php if($order[ 'status']=='1' OR  $order[ 'status']=='3'):?><li><a href="/<?php echo ADMIN_DIR;?>/order/send/?id=<?php echo $order['id'];?>">手工发货</a></li><?php endif;?>
             </ul>
             <div class="layui-tab-content" style="padding: 20px 0;">
                 <div class="layui-form-pane layui-tab-item layui-show">
@@ -92,6 +92,15 @@
                             <label for="cardmi" class="layui-form-label">卡密</label>
                             <div class="layui-input-block">
                                 <textarea placeholder="" id="cardmi" name="cardmi" disabled autocomplete="off" class="layui-textarea" style="height: 80px;"><?php echo $order['kami'];?></textarea>
+                            </div>
+                        </div>
+                        <?php endif;?>
+						
+                        <?php if(isset($order['addons']) AND strlen($order['addons'])>0):?>
+                        <div class="layui-form-item layui-form-text">
+                            <label for="cardmi" class="layui-form-label">附加信息</label>
+                            <div class="layui-input-block">
+                                <textarea placeholder="" id="cardmi" name="cardmi" disabled autocomplete="off" class="layui-textarea" style="height: 80px;"><?php echo $order['addons'];?></textarea>
                             </div>
                         </div>
                         <?php endif;?>

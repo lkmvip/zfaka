@@ -36,7 +36,7 @@ class AdminBasicController extends BasicController
     //消息显示
     public function show_message($code = '', $msg = '', $url = '/')
     {
-        $this->forward("Admin", 'Showmsg', 'index', array('code' => $code, 'msg' => $msg, 'url' => $url));
+        $this->forward(ADMIN_DIR, 'Showmsg', 'index', array('code' => $code, 'msg' => $msg, 'url' => $url));
         return FALSE;
     }
 
@@ -46,7 +46,7 @@ class AdminBasicController extends BasicController
         if ($this->AdminUser['id'] > 0) {
 
         } else {
-            jsRedirect('/admin/login');
+            jsRedirect(ADMIN_DIR.'/login');
         }
     }
 
@@ -103,7 +103,7 @@ class AdminBasicController extends BasicController
 	//验证csrftoken 防csrf攻击
 	public function VerifyCsrfToken($csrf_token=''){
 		$csrf_token=$csrf_token?$csrf_token:$this->getPost('csrf_token',false);
-		$session_csrf_token=$this->getSession('csrf_token'); 
+		$session_csrf_token=$this->getSession('csrf_token',false); 
 		if($session_csrf_token && $session_csrf_token==$csrf_token){
 			if(!isAjax()){
 				$this->setSession('csrf_token','');

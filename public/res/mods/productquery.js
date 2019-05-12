@@ -1,7 +1,11 @@
-layui.define(['layer', 'form','base64'], function(exports){
+layui.define(['layer', 'form','jquery','base64','laytpl','element'], function(exports){
 	var $ = layui.jquery;
 	var layer = layui.layer;
 	var form = layui.form;
+	var device = layui.device();
+	var laytpl = layui.laytpl;
+	var element = layui.element;
+	var lodding;
 	
 	function createTime(v){
 		var date = new Date();
@@ -29,7 +33,6 @@ layui.define(['layer', 'form','base64'], function(exports){
 			case '0':
 				oid = $.base64.encode(data.id);
 				str = '<span class="layui-badge layui-bg-gray">待付款</span>';
-				str += ',<a style="color:red" href="/product/order/pay/?oid='+oid+'">去支付</a>';
 				break;
 			case '1':
 				str = '<span class="layui-badge layui-bg-blue">待处理</span>';
@@ -45,21 +48,30 @@ layui.define(['layer', 'form','base64'], function(exports){
 		return str;
 	}
 	
-	$("#query-table").on("click",".view_kami",function(event){
+	$("#query-pane").on("click",".view_kami",function(event){
 		event.preventDefault();
 		var orderid = $(this).attr("data-orderid");
-		$(this).attr({"disabled":"disabled"});
+		//$(this).attr({"disabled":"disabled"});
         $.ajax({
             type: "POST",
             dataType: "json",
             url: "/product/query/kami",
             data: { "csrf_token": TOKEN,'orderid':orderid},
+			beforeSend: function () {
+				lodding = layer.load();
+			},
+			complete: function () {
+				layer.close(lodding);
+			},
+			error: function (data) {
+				ayer.close(lodding);
+			},
             success: function(res) {
                 if (res.code == 1) {
 					var html = "";
 					var list = res.data;
 					for (var i = 0, j = list.length; i < j; i++) {
-						html += '<p>卡密:'+list[i]+'</p>';
+						html += '<p>'+list[i]+'</p>';
 					}
 					layer.open({
 						type: 1
@@ -98,19 +110,27 @@ layui.define(['layer', 'form','base64'], function(exports){
 		})
 		.done(function(res) {
 			if (res.code == '1') {
-				var html = "";
-				var addon = "";
-				var orderstatus = "";
-				var oid = "";
-				var list = res.data;
-				for (var i = 0, j = list.length; i < j; i++) {
-					orderstatus = converStatus(list[i]);
-					html += '<tr><td><span id="orderid">'+list[i].orderid+'</span></td><td>'+list[i].productname+'</td><td>'+list[i].number+'</td><td>'+list[i].money+'</td><td>'+createTime(list[i].addtime)+'</td><td>'+orderstatus+'</td></tr>';
+				if(device.weixin==true || device.android==true || device.ios==true){
+					var getTpl = query_ajax_mobile.innerHTML
+					,view = document.getElementById('query-ajax-mobile-view');
+					laytpl(getTpl).render(res, function(html){
+					  view.innerHTML = html;
+					});
+					element.render('query-m-result');
+					$("#query-form").hide();
+				}else{
+					$("#query-table tbody").html("<tr></tr>");
+					var html = "";
+					var list = res.data;
+					for (var i = 0, j = list.length; i < j; i++) {
+						var orderstatus = converStatus(list[i]);
+						html += '<tr><td><span id="orderid">'+list[i].orderid+'</span></td><td>'+list[i].productname+'</td><td>'+list[i].number+'</td><td>'+list[i].money+'</td><td>'+createTime(list[i].addtime)+'</td><td>'+orderstatus+'</td></tr>';
+					}
+					$("#query-table tbody").prepend(html);
+					$("#query-table").show();
 				}
-				$("#query-table tbody").prepend(html);
-				$("#query-table").show();
 				$(".view_kami").click(function(){});
-				layer.msg(res.msg,{icon:1,time:5000});
+				layer.msg(res.msg,{icon:1,time:2000});
 			} else {
 				$('.loadcode').attr('src','/Captcha?t=productquery&n=' + Math.random());
 				layer.msg(res.msg,{icon:2,time:5000});

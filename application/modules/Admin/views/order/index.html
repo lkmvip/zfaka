@@ -40,7 +40,9 @@
 								<button lay-submit class="layui-btn" lay-filter="search">查询</button>
 							</div>
 						</div>
-
+						<div class="layui-inline layui-col-xs12 layui-col-sm4 layui-col-md3 layui-col-lg2">
+							<button class="layui-btn layui-btn-danger" id="deleteALL"><i class="layui-icon">&#xe640;</i>批量删除</button>
+						</div>
                         <table class="layui-table" id="table" lay-filter="table"></table>
                     </div>
                 </div>
@@ -77,9 +79,9 @@
                     <span class="layui-badge layui-bg-black">处理失败</span> {{# } }}
                 </script>
                 <script type="text/html" id="opt">
-					<a class="layui-btn layui-btn-warm layui-btn-xs" href="/admin/order/view/?id={{d.id}}">查看</a> 
+					<a class="layui-btn layui-btn-warm layui-btn-xs" href="/<?php echo ADMIN_DIR;?>/order/view/?id={{d.id}}">查看</a> 
                     {{# if(d.status =='0' || d.status =='2'){ }}
-					<a data-href="/admin/order/delete/?id={{d.id}}" class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+					<a data-href="/<?php echo ADMIN_DIR;?>/order/delete/?id={{d.id}}" class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
 					{{# } }}
                 </script>
             </div>

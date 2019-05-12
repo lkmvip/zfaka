@@ -12,7 +12,7 @@ html,body{overflow-x: hidden;}
 html body{margin-top: 61px;}
 html{background-color: #F2F2F2;}
 i{font-style: normal;}
-
+.ovfHiden{overflow: hidden;height: 100%;}
 /* 图标 */
 
 @font-face {font-family: "layui-icon-fly";
@@ -42,6 +42,26 @@ input[readonly]{
 input.readonly{
 	background-color:#F5F5F5;
 }
+
+textarea:disabled{
+	background-color:#F5F5F5;
+}
+textarea[disabled]{
+	background-color:#F5F5F5;
+}
+textarea.disabled{
+	background-color:#F5F5F5;
+}
+textarea:readonly{
+	background-color:#F5F5F5;
+}
+textarea[readonly]{
+	background-color:#F5F5F5;
+}
+textarea.readonly{
+	background-color:#F5F5F5;
+}
+
 .layui-btn.disabled, .layui-btn[disabled], fieldset[disabled] .layui-btn {
     pointer-events: none;
     cursor: not-allowed;
@@ -51,7 +71,7 @@ input.readonly{
     color: #C9C9C9;
 }
 
-
+.money-item strong {color: red;line-height: 25px;font-size: 15px;font-family: Arial;padding: 0 10px;margin-right: 10px;border-radius: 5px;box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);}
 
 
 
@@ -170,7 +190,11 @@ pre{padding: 10px 15px; margin: 10px 0; font-size: 12px; border-left: 6px solid 
 /* 头部 */
 .fly-header{position: fixed; left: 0; top: 0; z-index: 10000; width: 100%; height: 60px; border-bottom: 1px solid #404553; border-right: 1px solid #404553; border-radius: 0;}
 .fly-logo{position: absolute;top: 11px;}
+.fly-logo img{height:40px;}
 .fly-nav{margin-left: 150px;}
+@media screen and (max-width: 450px){
+	.fly-nav{margin-left: 0;}
+}
 .fly-nav a i{position: absolute; left: 25px; top: 0; padding-right: 10px; font-size: 26px;}
 .fly-nav a .icon-shouye, .nav a .icon-shezhi{top: 2px;}
 
@@ -196,7 +220,7 @@ pre{padding: 10px 15px; margin: 10px 0; font-size: 12px; border-left: 6px solid 
 .fly-header .fly-nav-user .layui-nav-child{left: auto; right: 0; width: 120px; min-width: 0;}
 
 /* 底部 */
-.fly-footer {margin: 50px 0 0; padding: 20px 0 30px; line-height: 30px; text-align: center; color: #737573; border-top: 1px solid #e2e2e2;}
+.fly-footer {line-height: 30px; text-align: center; color: #737573;}
 .fly-footer a{padding:0 6px; font-weight: 300; color: #333;}
 .fly-footer a:hover{color: #777;}
 .fly-union{margin-top: 10px; color: #999;}
@@ -582,6 +606,7 @@ body .fly-user-main{position: relative; min-height: 600px;}
   .site-mobile .site-tree-mobile{display: none !important;}
   .site-mobile .fly-user-main>.layui-nav{left: 0;}
   .site-mobile .site-mobile-shade{content: ''; position: fixed; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,.9); z-index: 999;}
+  .main-menu-mobile_body .site-mobile-shade{content: ''; position: fixed; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,.9); z-index: 999;}
 }
 
 @media screen and (max-width: 450px){
@@ -591,13 +616,42 @@ body .fly-user-main{position: relative; min-height: 600px;}
 .orderpaymethod img{width: 100%;max-width: 150px;border: 1px solid #EAEAEA;cursor: pointer;}
 .mod-title {height: 60px;line-height: 60px;text-align: center;border-bottom: 1px solid #ddd;background: #fff}
 .ico_log {display: inline-block;width: 130px;height: 38px;vertical-align: middle;margin-right: 7px}
-.ico-codepayalipay,.ico-zfbf2f{background: url("/res/images/pay/alipay.jpg") no-repeat;}
-.ico-codepayqq {background: url("/res/images/pay/qqpay.jpg") no-repeat;}
-.ico-codepaywx {background: url("/res/images/pay/weixin.jpg") no-repeat;}
+.ico-codepayalipay,.ico-zfbf2f,.ico-zlkbcodepayalipay{background: url("/res/images/pay/alipay.jpg") no-repeat;}
+.ico-zfbweb{background: url("/res/images/pay/alipayweb.jpg") no-repeat;}
+.ico-codepayqq ,.ico-zlkbcodepayqq{background: url("/res/images/pay/qqpay.jpg") no-repeat;}
+.ico-yzpay {background: url("/res/images/pay/yzpay.jpg") no-repeat;}
+.ico-codepaywx,.ico-zlkbcodepaywx {background: url("/res/images/pay/weixin.jpg") no-repeat;}
 .mod-title .text {font-size: 20px;color: #333;font-weight: normal;vertical-align: middle}
 .mod-content{text-align: center;}
 .mod-content img{margin-left: 20px;margin-right: 20px;}
+.time-item {margin-bottom: 10px;}
 .time-item strong {background: #3ec742;color: #fff;line-height: 25px;font-size: 15px;font-family: Arial;padding: 0 10px;margin-right: 10px;border-radius: 5px;box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);}
 .item-title {background: none;line-height: 25px;font-size: 24px;padding: 0 10px;float: left;}
 #prodcut_description {vertical-align: middle;word-break:break-all;overflow:auto;white-space:normal; }
 #prodcut_description img{ width: 100%;height: auto;}
+
+/*20181228 新商品详情页*/
+.trade-goodname {font-size: 20px;color: #3C3C3C;}
+.good-trade p {font-size: 15px;line-height: 30px;}
+.trade-price {color: #F40;font-size: 26px;font-weight: 700;}
+.trade-goodinfo {background-color: #FFF2E8;padding: 10px; margin-bottom: 5px;padding-left: 35px;}
+.trade-youhui {background-color: #fff2e9;padding: 10px; margin-bottom: 5px;padding-left: 35px;}
+/*20181231 新增首页列表*/
+.goodsdetail{}
+.goodsdetail-img{}
+.product-list-two-view>* {padding: 15px;}
+.goodsdetail-container {background: #fff;border: 1px solid #ededed;}
+.goodsdetail-container img {width: 100%;}
+.goodsdetail-text {padding: 10px;}
+.goodsdetail-text .title {margin-top: 6px;text-overflow: ellipsis;white-space: nowrap;font-size: 14px;line-height: 20px;width: 100%;overflow: hidden;color: #666;}
+.goodsdetail-text .price {color: #F40;font-size: 16px;margin-right: 20px;font-family: arial; letter-spacing: 0.8px;font-weight: 700;display: inline-block;}
+.goodsdetail-text .kucun {font-size: 12px;float: right;color: #888;}
+/*20190102 新增移动端*/
+.goodslist-mobile{line-height: 24px;}
+.goodsdetail-mobile{background: #fff;border-bottom: 1px solid #dbdbdb;padding: 10px;position: relative;display: -webkit-box;display: -webkit-flex;display: flex;-webkit-box-align: center;-webkit-align-items: center;align-items: center;}
+.goodsdetail-mobile-img{position: relative;margin-right: 10px;}
+.goodsdetail-mobile-img img{width: 100px;display: block;}
+.goodsdetail-mobile-text{-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;overflow: hidden;}
+.goodsdetail-mobile-text .title{line-height: 22px;margin-bottom: 3px;position: relative; display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;word-break: break-all;color: #4b566a;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;}
+.goodsdetail-mobile-text .price{color: red;font-size: 13px;}
+.goodsdetail-mobile-btn {}

@@ -14,27 +14,26 @@ layui.define(['layer', 'laytpl', 'form', 'element','table'], function(exports){
   ,upload = layui.upload
   ,table = layui.table
   ,device = layui.device()
-
   ,DISABLED = 'layui-btn-disabled';
 
-  //阻止IE7以下访问
-  if(device.ie && device.ie < 8){
-    layer.alert('如果您非得使用 IE 浏览器访问本站点，那么请使用 IE8+');
-  }
- 
-  layui.focusInsert = function(obj, str){
-    var result, val = obj.value;
-    obj.focus();
-    if(document.selection){ //ie
-      result = document.selection.createRange();
-      document.selection.empty();
-      result.text = str;
-    } else {
-      result = [val.substring(0, obj.selectionStart), str, val.substr(obj.selectionEnd)];
-      obj.focus();
-      obj.value = result.join('');
-    }
-  };
+	//阻止IE7以下访问
+	if(device.ie && device.ie < 8){
+		layer.alert('如果您非得使用 IE 浏览器访问本站点，那么请使用 IE8+');
+	}
+	
+	layui.focusInsert = function(obj, str){
+		var result, val = obj.value;
+		obj.focus();
+		if(document.selection){ //ie
+			result = document.selection.createRange();
+			document.selection.empty();
+			result.text = str;
+		} else {
+			result = [val.substring(0, obj.selectionStart), str, val.substr(obj.selectionEnd)];
+			obj.focus();
+			obj.value = result.join('');
+		}
+	};
 
 	console.group("欢迎使用ZFAKA开源开卡程序");
 		console.log("github地址：https://github.com/zlkbdotnet/zfaka/");
@@ -81,17 +80,37 @@ layui.define(['layer', 'laytpl', 'form', 'element','table'], function(exports){
 
 
   //手机设备的简单适配
-  var treeMobile = $('.site-tree-mobile')
-  ,shadeMobile = $('.site-mobile-shade')
+	var treeMobile = $('.site-tree-mobile')
+	,shadeMobile = $('.site-mobile-shade')
 
-  treeMobile.on('click', function(){
-    $('body').addClass('site-mobile');
-  });
+	treeMobile.on('click', function(){
+		$('body').addClass('site-mobile');
+		$('html,body').addClass('ovfHiden');
+	});
 
-  shadeMobile.on('click', function(){
-    $('body').removeClass('site-mobile');
-  });
-
+	shadeMobile.on('click', function(){
+		$('body').removeClass('site-mobile');
+		$('html,body').removeClass('ovfHiden');
+	});
+  
+	$('#main-menu-mobile-switch').on('click', function(){
+		if($("#main-menu-mobile").is(":hidden")){
+			$('body').addClass('main-menu-mobile_body');
+			$('html,body').addClass('ovfHiden');
+			var body_width = parseInt($('body').width());
+			$("#main-menu-mobile").css("width",body_width);
+			$('#main-menu-mobile').show();
+		}else{
+			$('body').removeClass('main-menu-mobile_body');
+			$('html,body').removeClass('ovfHiden');
+			$('#main-menu-mobile').hide();
+		}
+	});
+	$('.site-mobile-shade').on('click', function(){
+		$('body').removeClass('main-menu-mobile_body');
+		$('html,body').removeClass('ovfHiden');
+		$('#main-menu-mobile').hide();
+	});
  	//全局删除信息提示
 	table.on('tool(table)', function(obj) {
 		var layEvent = obj.event;
